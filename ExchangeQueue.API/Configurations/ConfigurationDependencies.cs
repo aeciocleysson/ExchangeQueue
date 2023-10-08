@@ -4,7 +4,7 @@ using ExchangeQueue.Domain.Interfaces;
 using ExchangeQueue.Domain.Services;
 using ExchangeQueue.Infrastructure.Context;
 using ExchangeQueue.Infrastructure.Repository;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace ExchangeQueue.API.Configurations
 {
@@ -12,12 +12,6 @@ namespace ExchangeQueue.API.Configurations
     {
         public static IServiceCollection AddDependencies(this IServiceCollection service, IConfiguration configuration)
         {
-            service.AddScoped<IExchangeRepository, ExchangeRepository>();
-            service.AddScoped<IQueueRepository, QueueRepository>();
-
-            service.AddScoped<IExchangeService, ExchangeService>();
-            service.AddScoped<IQueueService, QueueService>();
-
             service.AddCors(policy =>
             {
                 policy.AddPolicy("CorsPolicy", opt => opt
@@ -26,10 +20,25 @@ namespace ExchangeQueue.API.Configurations
                        .AllowAnyMethod());
             });
 
-            service.AddDbContext<ExcahngeQueueContext>(options =>
+            #region Configurações do MongoDB
+
+            service.Configure<MongoDBSettings>(configuration.GetSection("MongoDBSettings"));
+            service.AddScoped<IMongoContext, MongoContext>();
+
+            service.AddScoped<IMongoDatabase>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("Default"));
+                var settings = configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>();
+                var client = new MongoClient(settings.ConnectionString);
+                return client.GetDatabase(settings.DatabaseName);
             });
+
+            service.AddScoped<IQueueRepository, QueueRepository>();
+            service.AddScoped<IExchangeRepository, ExchangeRepository>();
+
+            service.AddScoped<IExchangeService, ExchangeService>();
+            service.AddScoped<IQueueService, QueueService>();
+
+            #endregion Configurações do MongoDB
 
             return service;
         }

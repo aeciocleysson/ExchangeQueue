@@ -9,43 +9,38 @@ namespace ExchangeQueue.Application.Services.Exchanges
 {
     public class ExchangeService : IExchangeService
     {
-        private readonly IExchangeRepository _repository;
+        private readonly IExchangeRepository _exchangeRepository;
 
-        public ExchangeService(IExchangeRepository repository)
+        public ExchangeService(IExchangeRepository exchangeRepository)
         {
-            _repository = repository;
+            _exchangeRepository = exchangeRepository;
         }
 
-        public async Task<List<Exchange>> GetAsync() => await _repository.GetAsync();
+        public async Task<List<Exchange>> GetAsync() => await _exchangeRepository.GetAsync();
 
-        public async Task<Exchange> PostAsync(ExchangeDtoRequest model)
+        public async Task PostAsync(ExchangeDtoRequest model)
         {
             if (model is not null)
             {
                 try
                 {
-                    var factory = new ConnectionFactory() { HostName = "host.docker.internal" };
+                    //var factory = new ConnectionFactory() { HostName = "host.docker.internal" };
+                    var factory = new ConnectionFactory() { HostName = "localhost" };
                     using var connection = factory.CreateConnection();
 
                     using var channel = connection.CreateModel();
 
                     var exchange = model.Adapt<Exchange>();
 
-                    var response = await _repository.PostAsync(exchange);
+                    await _exchangeRepository.PostAsync(exchange);
 
                     channel.ExchangeDeclare(model.Name, type: model.Type.ToString().ToLower());
-
-                    return response;
                 }
                 catch (Exception ex)
                 {
                     throw;
                 }
-            }
-            else
-            {
-                return null;
-            }
+            }          
         }
     }
 }

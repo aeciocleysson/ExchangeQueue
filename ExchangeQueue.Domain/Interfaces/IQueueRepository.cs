@@ -1,6 +1,11 @@
-﻿namespace ExchangeQueue.Domain.Interfaces
+﻿using ExchangeQueue.Domain.Models;
+
+namespace ExchangeQueue.Domain.Interfaces
 {
-    public interface IQueueRepository : IBaseRepository<Models.Queue>
+    public interface IQueueRepository 
     {
+        Task PostAsync(Queue queue);
+
+        Task<List<Queue>> GetAsync();
     }
 }

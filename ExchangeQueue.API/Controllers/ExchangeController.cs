@@ -20,7 +20,11 @@ namespace ExchangeQueue.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] ExchangeViewModel exchange) => Ok((await _serrvice.PostAsync(exchange.Adapt<ExchangeDtoRequest>())).Adapt<ExchangeViewModel>());
+        public async Task<IActionResult> PostAsync([FromBody] ExchangeViewModel exchange)
+        {
+            await _serrvice.PostAsync(exchange.Adapt<ExchangeDtoRequest>());
+            return Ok();
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAsync() => Ok(await _serrvice.GetAsync());

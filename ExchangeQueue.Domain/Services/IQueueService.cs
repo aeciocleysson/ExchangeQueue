@@ -5,7 +5,7 @@ namespace ExchangeQueue.Domain.Services
 {
     public interface IQueueService
     {
-        Task<Queue> PostAsync(QueueDtoRequest model);
+        Task PostAsync(QueueDtoRequest model);
         Task<List<Queue>> GetAsync();
     }
 }

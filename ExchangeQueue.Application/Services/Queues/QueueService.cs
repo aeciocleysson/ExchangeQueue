@@ -18,11 +18,11 @@ namespace ExchangeQueue.Application.Services.Queues
 
         public async Task<List<Queue>> GetAsync() => await _repository.GetAsync();
 
-        public async Task<Queue> PostAsync(QueueDtoRequest model)
+        public async Task PostAsync(QueueDtoRequest model)
         {
             if (model is not null)
             {
-                var factory = new ConnectionFactory() { HostName = "host.docker.internal" };
+                var factory = new ConnectionFactory() { HostName = "localhost" };
                 using var connection = factory.CreateConnection();
                 using var channel = connection.CreateModel();
 
@@ -34,11 +34,8 @@ namespace ExchangeQueue.Application.Services.Queues
 
                 channel.QueueBind(model.Name, model.Exchange, model.RountingKey);
 
-                var response = await _repository.PostAsync(model.Adapt<Queue>());
-
-                return response;
+                await _repository.PostAsync(model.Adapt<Queue>());
             }
-            else { return null; }
         }
     }
 }
