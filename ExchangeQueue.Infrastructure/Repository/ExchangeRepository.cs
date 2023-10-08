@@ -2,6 +2,7 @@
 using ExchangeQueue.Domain.Models;
 using ExchangeQueue.Infrastructure.Context;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace ExchangeQueue.Infrastructure.Repository
 {
@@ -16,12 +17,37 @@ namespace ExchangeQueue.Infrastructure.Repository
 
         public async Task<List<Exchange>> GetAsync()
         {
-            return await _context.Exchange.Find(_ => true).ToListAsync();
+            var response = await _context.Exchange.Find(_ => true).ToListAsync();
+            return response;
         }
 
-        public async Task PostAsync(Exchange exchange)
+        public async Task<Exchange> GetAsync(Guid id)
         {
-            await _context.Exchange.InsertOneAsync(exchange);
+            var response = await _context
+                                  .Exchange
+                                  .Find(_ => true)
+                                  .ToListAsync();
+
+            return response.Where(w => w.Id == id).FirstOrDefault();
+        }
+
+        public async Task<Exchange> PostAsync(Exchange exchange)
+        {
+            try
+            {
+                await _context.Exchange.InsertOneAsync(exchange);
+
+                var response = await GetAsync(exchange.Id);
+
+                if (response is not null)
+                    return response;
+                else
+                    return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

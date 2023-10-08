@@ -5,8 +5,10 @@ namespace ExchangeQueue.Domain.Services
 {
     public interface IExchangeService
     {
-        Task PostAsync(ExchangeDtoRequest model);
+        Task<ExchangeDtoResponse> PostAsync(ExchangeDtoRequest model);
 
         Task<List<Exchange>> GetAsync();
+
+        Task<ExchangeDtoResponse> GetAsync(Guid id);
     }
 }

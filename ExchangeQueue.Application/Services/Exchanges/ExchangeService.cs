@@ -18,7 +18,17 @@ namespace ExchangeQueue.Application.Services.Exchanges
 
         public async Task<List<Exchange>> GetAsync() => await _exchangeRepository.GetAsync();
 
-        public async Task PostAsync(ExchangeDtoRequest model)
+        public async Task<ExchangeDtoResponse> GetAsync(Guid id)
+        {
+            var response = (await _exchangeRepository.GetAsync(id)).Adapt<ExchangeDtoResponse>();
+
+            if (response is not null)
+                return response;
+            else
+                return null;
+        }
+
+        public async Task<ExchangeDtoResponse> PostAsync(ExchangeDtoRequest model)
         {
             if (model is not null)
             {
@@ -28,19 +38,28 @@ namespace ExchangeQueue.Application.Services.Exchanges
                     var factory = new ConnectionFactory() { HostName = "localhost" };
                     using var connection = factory.CreateConnection();
 
+                    var exchange = model.Adapt<Exchange>();
                     using var channel = connection.CreateModel();
 
-                    var exchange = model.Adapt<Exchange>();
+                    var request = (await _exchangeRepository.PostAsync(exchange)).Adapt<ExchangeDtoResponse>();
 
-                    await _exchangeRepository.PostAsync(exchange);
-
-                    channel.ExchangeDeclare(model.Name, type: model.Type.ToString().ToLower());
+                    if (request is not null)
+                    {
+                        channel.ExchangeDeclare(model.Name, type: model.Type.ToString().ToLower());
+                        return request;
+                    }
+                    else
+                        return null;
                 }
                 catch (Exception ex)
                 {
                     throw;
                 }
-            }          
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

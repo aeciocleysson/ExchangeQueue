@@ -11,22 +11,29 @@ namespace ExchangeQueue.API.Controllers
     public class ExchangeController : ControllerBase
     {
         private readonly ILogger<ExchangeController> _logger;
-        private readonly IExchangeService _serrvice;
+        private readonly IExchangeService _service;
 
-        public ExchangeController(ILogger<ExchangeController> logger, IExchangeService serrvice)
+        public ExchangeController(ILogger<ExchangeController> logger, IExchangeService service)
         {
             _logger = logger;
-            _serrvice = serrvice;
+            _service = service;
         }
 
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody] ExchangeViewModel exchange)
         {
-            await _serrvice.PostAsync(exchange.Adapt<ExchangeDtoRequest>());
-            return Ok();
+            var response = (await _service.PostAsync(exchange.Adapt<ExchangeDtoRequest>())).Adapt<ExchangeViewModelResponse>();
+            return Ok(response);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAsync() => Ok(await _serrvice.GetAsync());
+        public async Task<IActionResult> GetAsync() => Ok(await _service.GetAsync());
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAsync(Guid id)
+        {
+            var response = (await _service.GetAsync(id)).Adapt<ExchangeViewModelResponse>();
+            return Ok(response);
+        }
     }
 }
