@@ -4,6 +4,7 @@ using ExchangeQueue.Domain.Interfaces;
 using ExchangeQueue.Domain.Services;
 using ExchangeQueue.Infrastructure.Context;
 using ExchangeQueue.Infrastructure.Repository;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace ExchangeQueue.API.Configurations
@@ -22,8 +23,10 @@ namespace ExchangeQueue.API.Configurations
 
             #region Configurações do MongoDB
 
-            service.Configure<MongoDBSettings>(configuration.GetSection("MongoDBSettings"));
+            service.Configure<MongoDBSettings>(configuration.GetSection(nameof(MongoDBSettings)));
             service.AddScoped<IMongoContext, MongoContext>();
+
+            service.AddSingleton<IMongoDBSettings>(options => options.GetRequiredService<IOptions<MongoDBSettings>>().Value);
 
             service.AddScoped<IMongoDatabase>(options =>
             {
@@ -31,6 +34,8 @@ namespace ExchangeQueue.API.Configurations
                 var client = new MongoClient(settings.ConnectionString);
                 return client.GetDatabase(settings.DatabaseName);
             });
+
+            service.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
             service.AddScoped<IQueueRepository, QueueRepository>();
             service.AddScoped<IExchangeRepository, ExchangeRepository>();

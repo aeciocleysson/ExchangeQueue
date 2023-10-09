@@ -2,12 +2,12 @@
 
 namespace ExchangeQueue.Domain.Interfaces
 {
-    public interface IExchangeRepository
+    public interface IExchangeRepository : IBaseRepository<Exchange>
     {
-        Task<Exchange> PostAsync(Exchange exchange);
+        //Task<Exchange> PostAsync(Exchange exchange);
 
-        Task<List<Exchange>> GetAsync();
+        //Task<List<Exchange>> GetAsync();
 
-        Task<Exchange> GetAsync(Guid id);
+        //Task<Exchange> GetAsync(Guid id);
     }
 }
