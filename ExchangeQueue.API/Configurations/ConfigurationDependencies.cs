@@ -35,8 +35,6 @@ namespace ExchangeQueue.API.Configurations
                 return client.GetDatabase(settings.DatabaseName);
             });
 
-            service.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
-
             service.AddScoped<IQueueRepository, QueueRepository>();
             service.AddScoped<IExchangeRepository, ExchangeRepository>();
 

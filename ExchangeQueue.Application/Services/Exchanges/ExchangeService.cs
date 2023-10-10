@@ -20,15 +20,12 @@ namespace ExchangeQueue.Application.Services.Exchanges
 
         public async Task<ExchangeDtoResponse> GetAsync(Guid id)
         {
-            //var response = (await _exchangeRepository.GetAsync(id)).Adapt<ExchangeDtoResponse>();
-
-            //if (response is not null)
-            //    return response;
-            //else
-            //    return null;
-
             var response = (await _exchangeRepository.GetAsync(id)).Adapt<ExchangeDtoResponse>();
-            return response;
+
+            if (response is not null)
+                return response;
+            else
+                return null;
         }
 
         public async Task<ExchangeDtoResponse> PostAsync(ExchangeDtoRequest model)

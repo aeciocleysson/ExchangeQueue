@@ -1,58 +1,55 @@
 ﻿using ExchangeQueue.Domain.Interfaces;
 using ExchangeQueue.Domain.Models;
 using ExchangeQueue.Infrastructure.Context;
+using MongoDB.Driver;
 
 namespace ExchangeQueue.Infrastructure.Repository
 {
-    public class ExchangeRepository : BaseRepository<Exchange>, IExchangeRepository
+    public class ExchangeRepository : IExchangeRepository
     {
-        //private readonly IMongoContext _context;
+        private readonly IMongoContext _context;
 
-        public ExchangeRepository(IMongoDBSettings settings) : base(settings)
+        public ExchangeRepository(IMongoContext context)
         {
+            _context = context;
         }
 
-        //public ExchangeRepository(IMongoContext context)
-        //{
-        //    _context = context;
-        //}
+        public async Task<List<Exchange>> GetAsync()
+        {
+            var response = await _context.Exchange.Find(_ => true).ToListAsync();
+            return response;
 
-        //public Task<List<Exchange>> GetAsync()
-        //{
-        //    //var response = await _context.Exchange.Find(_ => true).ToListAsync();
-        //    //return response;
+            throw new NotImplementedException();
+        }
 
-        //    throw new NotImplementedException();
-        //}
+        public async Task<Exchange> GetAsync(Guid id)
+        {
+            var response = await _context
+                                  .Exchange
+                                  .Find(_ => true)
+                                  .ToListAsync();
 
-        //public Task<Exchange> GetAsync(Guid id)
-        //{
-        //    //var response = await _context
-        //    //                      .Exchange
-        //    //                      .Find(_ => true)
-        //    //                      .ToListAsync();
+            return response.Where(w => w.Id == id).FirstOrDefault();
+        }
 
-        //    throw new NotImplementedException();
-        //}
+        public async Task<Exchange> PostAsync(Exchange exchange)
+        {
+            try
+            {
+                await _context.Exchange.InsertOneAsync(exchange);
 
-        //public Task<Exchange> PostAsync(Exchange exchange)
-        //{
-        //    //try
-        //    //{
-        //    //    await _context.Exchange.InsertOneAsync(exchange);
+                var response = await GetAsync(exchange.Id);
 
-        //    //    var response = await GetAsync(exchange.Id);
-
-        //    //    if (response is not null)
-        //    //        return response;
-        //    //    else
-        //    //        return null;
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    throw ex;
-        //    //}
-        //    throw new NotImplementedException();
-        //}
+                if (response is not null)
+                    return response;
+                else
+                    return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            throw new NotImplementedException();
+        }
     }
 }
